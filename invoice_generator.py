@@ -11,9 +11,8 @@ INVOICE_COLUMNS={0: {'name': 'product_id', 'size': 30, 'ln': 0},
 }
 
 
-def add_header(pdf: FPDF, invoice_file_path: str):
-    file_name = Path(invoice_file_path).stem
-    invoice_no, invoice_date = file_name.split('-',maxsplit=1)
+def add_header(pdf: FPDF, invoice_file_name: str):
+    invoice_no, invoice_date = invoice_file_name.split('-',maxsplit=1)
 
     pdf.add_page()
     pdf.set_font(family='Times', size=16, style='B')
@@ -55,13 +54,14 @@ def add_summary(pdf: FPDF, invoice_df: pd.DataFrame):
     pdf.image('pythonhow.png', w=8)
 
 
-def generate_invoice(invoice_df: pd.DataFrame, invoive_file_path: str) -> FPDF:
+def generate_invoice(invoice_df: pd.DataFrame, invoice_file_name: str) -> FPDF:
     pdf = FPDF(orientation='P', unit='mm', format='A4')
-    add_header(pdf, invoive_file_path)
+    add_header(pdf, invoice_file_name)
     add_contents(pdf, invoice_df=invoice_df)
     add_summary(pdf, invoice_df=invoice_df)
 
-    return pdf
+    pdf_output = os.path.join('PDFs', f'{invoice_file_name}.pdf')
+    pdf.output(pdf_output)
 
 
 if __name__ == '__main__':
@@ -71,9 +71,6 @@ if __name__ == '__main__':
     for filepath in filepaths:
 
         df = pd.read_excel(filepath, sheet_name='Sheet 1')
-        pdf = generate_invoice(invoice_df=df, invoive_file_path=filepath)
+        generate_invoice(invoice_df=df, invoice_file_name=Path(filepath).stem)
 
-        filename = Path(filepath).stem
-        pdf_output = os.path.join('PDFs', f'{filename}.pdf')
-        pdf.output(pdf_output)
 
