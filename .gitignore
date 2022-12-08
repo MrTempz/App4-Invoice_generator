@@ -1,5 +1,5 @@
 .venv
 **/*.ipynb
 **/*.pyc
-PDFs/*
+PDFs/*.pdf
 excersize/
