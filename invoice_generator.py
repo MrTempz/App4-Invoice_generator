@@ -21,7 +21,7 @@ def add_header(pdf: FPDF, invoice_file_path: str):
     pdf.cell(w=50, h=8, txt=f'Invoice date {invoice_date}', ln=1)
 
 
-def add_table(pdf: FPDF, invoice_df: pd.DataFrame):
+def add_contents(pdf: FPDF, invoice_df: pd.DataFrame):
     pdf.set_font(family='Times', size=10, style='B')
     pdf.set_text_color(80, 80, 80)
 
@@ -35,12 +35,31 @@ def add_table(pdf: FPDF, invoice_df: pd.DataFrame):
         for column in INVOICE_COLUMNS.values():
             pdf.cell(w=column['size'], h=8, txt=str(row[column['name']]),
                 border=1, ln=column['ln'])
+    
+def add_summary(pdf: FPDF, invoice_df: pd.DataFrame):
+    pdf.set_font(family='Times', size=10, style='B')
+    pdf.set_text_color(80, 80, 80)
+
+    for column in list(INVOICE_COLUMNS.values())[:-1]:
+        pdf.cell(w=column['size'], h=8, txt='', border=1)
+    total_sum = invoice_df['total_price'].sum()
+    pdf.cell(w=INVOICE_COLUMNS[4]['size'], h=8, txt=str(total_sum), 
+        border=1, ln=1)
+
+    pdf.set_font(family='Times', size=12, style='B')
+    pdf.set_text_color(0,0,0)
+    pdf.cell(w=120, h=8, txt=f'Total ammount due is ${total_sum}', ln=1)
+    
+    pdf.set_font(family='Times', size=20, style='B')
+    pdf.cell(w=36, h=8, txt='PythonHow')
+    pdf.image('pythonhow.png', w=8)
 
 
 def generate_invoice(invoice_df: pd.DataFrame, invoive_file_path: str) -> FPDF:
     pdf = FPDF(orientation='P', unit='mm', format='A4')
     add_header(pdf, invoive_file_path)
-    add_table(pdf, invoice_df=invoice_df)
+    add_contents(pdf, invoice_df=invoice_df)
+    add_summary(pdf, invoice_df=invoice_df)
 
     return pdf
 
